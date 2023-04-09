@@ -57,3 +57,13 @@ lazy val coreJS = core.js
 lazy val coreNative = core.native
   .enablePlugins(ScalaNativeBrewedConfigPlugin)
   .disablePlugins(DoctestPlugin)
+
+lazy val docs = project
+  .in(file("docs"))
+  .enablePlugins(MdocPlugin)
+  .dependsOn(coreJVM)
+  .settings(
+    mdocIn := baseDirectory.value / "src",
+    mdocOut := baseDirectory.value / "..",
+    githubWorkflowArtifactUpload := false
+  )
