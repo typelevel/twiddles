@@ -14,7 +14,7 @@ ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 ThisBuild / doctestTestFramework := DoctestTestFramework.ScalaCheck
 
 ThisBuild / developers ++= List(
-  "mpilquist" -> "Michael Pilquist",
+  "mpilquist" -> "Michael Pilquist"
 ).map { case (username, fullName) =>
   tlGitHubDev(username, fullName)
 }
@@ -28,7 +28,7 @@ ThisBuild / mimaBinaryIssueFilters ++= Seq(
 
 lazy val root = tlCrossRootProject
   .aggregate(
-    core,
+    core
   )
 
 lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -39,7 +39,8 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       "org.typelevel" %%% "cats-core" % "2.9.0",
       "org.typelevel" %%% "munit-cats-effect" % "2.0.0-M3" % Test,
       "org.typelevel" %%% "scalacheck-effect-munit" % "2.0.0-M2" % Test
-    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.3") else Nil),
+    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.3")
+          else Nil),
     scalacOptions := scalacOptions.value.filterNot(_.startsWith("-source:"))
   )
 
@@ -56,4 +57,3 @@ lazy val coreJS = core.js
 lazy val coreNative = core.native
   .enablePlugins(ScalaNativeBrewedConfigPlugin)
   .disablePlugins(DoctestPlugin)
-
