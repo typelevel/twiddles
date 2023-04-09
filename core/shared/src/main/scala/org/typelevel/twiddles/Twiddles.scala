@@ -33,12 +33,14 @@ package org.typelevel.twiddles
 import cats.{Invariant, InvariantSemigroupal}
 import cats.syntax.all._
 
-trait TwiddleOps {
+trait TwiddleSyntax {
   import TwiddleOps._
   implicit def toTwiddleCons[F[_], B <: Tuple](fb: F[B]): TwiddleCons[F, B] = new TwiddleCons(fb)
   implicit def toTwiddleTwo[F[_], B](fb: F[B]): TwiddleTwo[F, B] = new TwiddleTwo(fb)
   implicit def toTwiddleAs[F[_], A](fa: F[A]): TwiddleAs[F, A] = new TwiddleAs(fa)
 }
+
+object syntax extends TwiddleSyntax
 
 object TwiddleOps {
   final class TwiddleCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {

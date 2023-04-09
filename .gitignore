@@ -4,3 +4,5 @@
 .bsp
 target
 metals.sbt
+.vscode
+.metals

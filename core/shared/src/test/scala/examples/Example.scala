@@ -39,15 +39,14 @@ object Example {
   trait Decoder[A] {
     def decode(s: Json): Option[A]
   }
-  object Decoder extends TwiddleOps {
+  object Decoder extends TwiddleSyntax {
     implicit val applicative: Applicative[Decoder] = new Applicative[Decoder] {
       def pure[A](a: A): Decoder[A] = _ => Some(a)
-      def ap[A, B](ff: Decoder[A => B])(fa: Decoder[A]): Decoder[B] =
-        j =>
-          for {
-            a <- fa.decode(j)
-            f <- ff.decode(j)
-          } yield f(a)
+      def ap[A, B](ff: Decoder[A => B])(fa: Decoder[A]): Decoder[B] = j =>
+        for {
+          a <- fa.decode(j)
+          f <- ff.decode(j)
+        } yield f(a)
     }
   }
 
