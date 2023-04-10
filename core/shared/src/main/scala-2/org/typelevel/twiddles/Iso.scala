@@ -53,16 +53,11 @@ private[twiddles] trait IsoLowPriority {
 
   implicit def inverse[A, B](implicit iso: Iso[A, B]): Iso[B, A] = iso.inverse
 
-  // inline given productWithUnits[A <: Tuple, B <: Product](using
-  //     m: Mirror.ProductOf[B] { type MirroredElemTypes = DropUnits[A] }
-  // ): Iso[A, B] =
-  //   instance((a: A) => fromTuple(DropUnits.drop(a)))(b => DropUnits.insert(toTuple(b)))
-
-//   protected def toTuple[A <: Product](a: A)(using m: Mirror.ProductOf[A]): m.MirroredElemTypes =
-//     Tuple.fromProductTyped(a)
-
-//   protected def fromTuple[A](using m: Mirror.ProductOf[A])(t: m.MirroredElemTypes): A =
-//     m.fromProduct(t)
+  implicit def productWithUnits[A <: HList, B, Repr <: HList](implicit
+      g: Generic.Aux[B, Repr],
+      du: DropUnits.Aux[A, Repr]
+  ): Iso[A, B] =
+    instance((a: A) => g.from(du.removeUnits(a)))(b => du.addUnits(g.to(b)))
 }
 
 /** Companion for [[Iso]]. */

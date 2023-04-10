@@ -30,50 +30,37 @@
 
 package org.typelevel.twiddles
 
-import scala.deriving.Mirror
+import scala.compiletime.*
 
-@annotation.implicitNotFound("""Could not prove ${A} is isomorphic to ${B}.""")
-trait Iso[A, B] {
-  self =>
-  def to(a: A): B
-  def from(b: B): A
+/** The tuple which is the result of removing all 'Unit' types from the tuple 'A'. */
+type DropUnits[A <: Tuple] <: Tuple = A match
+  case hd *: tl =>
+    hd match
+      case Unit => DropUnits[tl]
+      case Any  => hd *: DropUnits[tl]
+  case EmptyTuple => EmptyTuple
 
-  final def inverse: Iso[B, A] = new Iso[B, A] {
-    def to(b: B) = self.from(b)
-    def from(a: A) = self.to(a)
-  }
-}
+object DropUnits:
 
-private trait IsoLowPriority {
-  def instance[A, B](t: A => B)(f: B => A): Iso[A, B] =
-    new Iso[A, B] {
-      def to(a: A) = t(a)
-      def from(b: B) = f(b)
-    }
+  inline def drop[A <: Tuple](a: A): DropUnits[A] =
+    // Ideally, the following would work:
+    // inline a match
+    //   case (_ *: t): (Unit *: tl) => drop[tl](t)
+    //   case (h *: t): (hd *: tl) => h *: drop[tl](t)
+    //   case EmptyTuple => EmptyTuple
+    (inline erasedValue[A] match
+      case _: (Unit *: tl) => drop[tl](a.asInstanceOf[Unit *: tl].tail)
+      case _: (hd *: tl) =>
+        val at = a.asInstanceOf[hd *: tl]
+        at.head *: drop[tl](at.tail)
+      case EmptyTuple => EmptyTuple
+    ).asInstanceOf[DropUnits[A]]
 
-  given inverse[A, B](using iso: Iso[A, B]): Iso[B, A] = iso.inverse
-
-  inline given productWithUnits[A <: Tuple, B <: Product](using
-      m: Mirror.ProductOf[B] { type MirroredElemTypes = DropUnits[A] }
-  ): Iso[A, B] =
-    instance((a: A) => m.fromProduct(DropUnits.drop(a)))(b =>
-      DropUnits.insert(Tuple.fromProductTyped(b))
-    )
-}
-
-/** Companion for [[Iso]]. */
-object Iso extends IsoLowPriority {
-
-  /** Identity iso. */
-  given id[A]: Iso[A, A] = instance[A, A](identity)(identity)
-
-  given product[A <: Tuple, B <: Product](using
-      m: Mirror.ProductOf[B] { type MirroredElemTypes = A }
-  ): Iso[A, B] =
-    instance[A, B](m.fromProduct)(Tuple.fromProductTyped)
-
-  given singleton[A, B <: Product](using
-      m: Mirror.ProductOf[B] { type MirroredElemTypes = A *: EmptyTuple }
-  ): Iso[A, B] =
-    instance[A, B](a => m.fromProduct(a *: EmptyTuple))(b => Tuple.fromProductTyped(b).head)
-}
+  inline def insert[A <: Tuple](t: DropUnits[A]): A =
+    (inline erasedValue[A] match
+      case _: (Unit *: tl) => (()) *: (insert[tl](t.asInstanceOf[DropUnits[tl]]))
+      case _: (hd *: tl) =>
+        val t2 = t.asInstanceOf[NonEmptyTuple]
+        t2.head.asInstanceOf[hd] *: insert[tl](t2.tail.asInstanceOf[DropUnits[tl]])
+      case EmptyTuple => EmptyTuple
+    ).asInstanceOf[A]

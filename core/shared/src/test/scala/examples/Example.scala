@@ -61,4 +61,10 @@ object Example {
 
   case class Baz(x: Foo, y: Bar)
   val bazDecoder = (fooDecoder *: barDecoder).as[Baz]
+
+  val unit: Decoder[Unit] = _ => ???
+  val fooDecoder2 = (int *: unit *: string *: unit).as[Foo]
+
+  val dropping: Decoder[Int *: String *: EmptyTuple] =
+    (int *: unit *: string *: unit).dropUnits
 }
