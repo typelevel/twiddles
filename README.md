@@ -2,8 +2,14 @@
 
 A twiddle list is a list of one or more values, potentially of differing types, that supports incremental creation and supports conversion to case classes that are "shape compatible" with the constituent types of the twiddle list.
 
+Twiddle lists are useful in the creation of protocols (e.g., decoders, encoders, codecs), where a protocol for a complex type is built from simpler constituent protocols. This technique was first popularized by parser combinators with syntax like `lparen ~ expr ~ rparen`. This technique is in contrast to type driven derivation schemes, where protocols end up implicitly determined by the constituent types of a data constructor.
+
+This library provides the ability to work with twiddle lists for arbitrary types and provides a single API that works for both Scala 3 and Scala 2.
+
+## Getting Started
+
 ```scala
-// Enable twiddle syntax for arbitrary types with appropriate type class instances
+// Enable twiddle syntax for arbitrary types
 import org.typelevel.twiddles.syntax._
 
 case class Foo(x: Int, y: String)
@@ -19,12 +25,20 @@ val foo = (a *: b).as[Foo]
 
 In this example, `a *: b` creates an `Option[Int *: String *: EmptyTuple]`. We then convert that value to an `Option[Foo]` via `.as[Foo]`.
 
-The term "twiddle list" was first coined by [Rob Norris](https://github.com/tpolecat) in the [Skunk](https://github.com/tpolecat/skunk) library, where a twiddle list was defined as a left nested tuple. For example, a 4 element twiddle list consisting of an `Int`, `String`, `Boolean`, and `Double` was represented as `(((Int, String), Boolean), Double)`. This library uses a different encoding -- twiddle lists are encoded as tuples on Scala 3 and Shapeless heterogeneous lists on Scala 2. The previous 4 element twiddle list is represented as `(Int, String, Boolean, Double)` or equivalently, `Int *: String *: Boolean *: Double *: EmptyTuple`. With the import `org.typelevel.twiddles._`, the latter syntax works with Scala 2. More specifically, the import aliases `*:` to `shapeless.::`, `EmptyTuple` to `HNil`, and `Tuple` to `HList`.
+The `*:` operation comes from the imported twiddle syntax and is similar to the Scala 3 built-in tuple cons operation, but works on applied type constructors. The expression `a *: b *: c` builds an `F[A *: B *: C *: EmptyTuple]` from an `F[A]`, `F[B]`, and `F[C]`. The `*:` operation requires that the type constructor `F` has a `cats.InvariantSemigroupal` instance.
 
-The expression `a *: b *: c` builds an `F[A *: B *: C *: EmptyTuple]` from an `F[A]`, `F[B]`, and `F[C]`. The `*:` operation requires that the type constructor `F` has a `cats.InvariantSemigroupal` instance.
+The `as` operation also comes from the imported twiddle syntax. Calling `.as[X]` on an `F[T]` for some twiddle list `T` results in an `F[X]` provided that `T` is shape compatible with `X`. In the most common case where `X` is a case class, shape compatibility is defined as `T` having the same types in the same order as the parameters of `X`. The `as` operation requires that the type constructor `F` has a `cats.Invariant` instance.
 
+Invariant semigroupals are much more general than (covariant) functors, which means twiddle list support works for a wide variety of data types. For instance, contravariant functors are invariant semigroupals allowing us to use twiddle list syntax to incrementally build instances:
+
+```scala
+val fooOrdering = (summon[Ordering[Int]] *: summon[Ordering[String]]).as[Foo]
+// fooOrdering: Ordering[Foo] = scala.math.Ordering$$anon$1@6f4eed27
+```
 
 ## Library Usage
+
+When designing a library that uses twiddle lists, the `TwiddleSyntax` trait can be mixed in to the companion object of a type constructor. This has the effect of providing twiddle syntax without requiring users of the library to import `org.typelevel.twiddles.syntax._` at each call site.
 
 ```scala
 import org.typelevel.twiddles.TwiddleSyntax
@@ -46,13 +60,19 @@ object Decoder extends TwiddleSyntax {
 }
 
 val int: Decoder[Int] = _ => ???
-// int: Decoder[Int] = repl.MdocSession$MdocApp0$$Lambda$47562/0x00000008036d0cb0@3c825f80
+// int: Decoder[Int] = repl.MdocSession$MdocApp0$$Lambda$53138/0x00000008042f8ed0@35dd7912
 val string: Decoder[String] = _ => ???
-// string: Decoder[String] = repl.MdocSession$MdocApp0$$Lambda$47563/0x00000008036d10f8@771e39d9
+// string: Decoder[String] = repl.MdocSession$MdocApp0$$Lambda$53139/0x00000008042f9318@40c93ff5
 
 case class Foo(x: Int, y: String)
 val fooDecoder = (int *: string).as[Foo]
-// fooDecoder: Decoder[Foo] = repl.MdocSession$$anon$7$$Lambda$47566/0x00000008036d1d78@30672f93
+// fooDecoder: Decoder[Foo] = repl.MdocSession$$anon$8$$Lambda$53142/0x00000008042fa000@5f4f500a
 ```
 
-In this example, the `Decoder` type has an `Applicative` instance defined in its companion object, and the companion object extends `TwiddleSyntax`. The latter enables use of `*:` and `as` with `Decoder` values without adding explicit imports (that is, there's no need to import `org.typelevel.twiddles.syntax._` at usage sites).
+In this example, the `Decoder` type has an `Applicative` instance defined in its companion object (and `Applicative` extends `InvariantSemigroupal`), and the companion object extends `TwiddleSyntax`. The latter enables use of `*:` and `as` with `Decoder` values without adding explicit imports (that is, there's no need to import `org.typelevel.twiddles.syntax._` at call sites).
+
+## Etymology
+
+The term "twiddle list" was first coined by [Rob Norris](https://github.com/tpolecat) in the [Skunk](https://github.com/tpolecat/skunk) library, where a twiddle list was defined as a left nested tuple. For example, a 4 element twiddle list consisting of an `Int`, `String`, `Boolean`, and `Double` was represented as `(((Int, String), Boolean), Double)`.
+
+This library uses a different encoding -- twiddle lists are encoded as tuples on Scala 3 and Shapeless heterogeneous lists on Scala 2. The previous 4 element twiddle list is represented as `(Int, String, Boolean, Double)` or equivalently, `Int *: String *: Boolean *: Double *: EmptyTuple`. With the import `org.typelevel.twiddles._`, the latter syntax works with Scala 2. The import aliases `*:` to `shapeless.::`, `EmptyTuple` to `HNil`, and `Tuple` to `HList`.
