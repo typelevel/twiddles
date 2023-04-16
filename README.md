@@ -33,7 +33,7 @@ Invariant semigroupals are much more general than (covariant) functors, which me
 
 ```scala
 val fooOrdering = (summon[Ordering[Int]] *: summon[Ordering[String]]).as[Foo]
-// fooOrdering: Ordering[Foo] = scala.math.Ordering$$anon$1@381596fc
+// fooOrdering: Ordering[Foo] = scala.math.Ordering$$anon$1@53b6c31c
 ```
 
 ## Library Usage
@@ -48,7 +48,7 @@ trait Json
 trait Decoder[A] {
   def decode(j: Json): Option[A]
 }
-object Decoder extends TwiddleSyntax {
+object Decoder extends TwiddleSyntax[Decoder] {
   implicit val applicative: Applicative[Decoder] = new Applicative[Decoder] {
     def pure[A](a: A): Decoder[A] = _ => Some(a)
     def ap[A, B](ff: Decoder[A => B])(fa: Decoder[A]): Decoder[B] = j =>
@@ -60,13 +60,13 @@ object Decoder extends TwiddleSyntax {
 }
 
 val int: Decoder[Int] = _ => ???
-// int: Decoder[Int] = repl.MdocSession$MdocApp0$$Lambda$55703/0x00000008035c0ed0@3bb9fa50
+// int: Decoder[Int] = repl.MdocSession$MdocApp0$$Lambda$21673/0x0000000804034ee8@25630c4e
 val string: Decoder[String] = _ => ???
-// string: Decoder[String] = repl.MdocSession$MdocApp0$$Lambda$55704/0x00000008035c1318@89caf3a
+// string: Decoder[String] = repl.MdocSession$MdocApp0$$Lambda$21674/0x0000000804035330@51372ab7
 
 case class Foo(x: Int, y: String)
 val fooDecoder = (int *: string).as[Foo]
-// fooDecoder: Decoder[Foo] = repl.MdocSession$$anon$8$$Lambda$55707/0x00000008035c2000@34442258
+// fooDecoder: Decoder[Foo] = repl.MdocSession$$anon$8$$Lambda$21677/0x0000000804036000@50615327
 ```
 
 In this example, the `Decoder` type has an `Applicative` instance defined in its companion object (and `Applicative` extends `InvariantSemigroupal`), and the companion object extends `TwiddleSyntax`. The latter enables use of `*:` and `as` with `Decoder` values without adding explicit imports (that is, there's no need to import `org.typelevel.twiddles.syntax._` at call sites).

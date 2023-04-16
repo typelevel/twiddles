@@ -30,7 +30,12 @@
 
 package org.typelevel.twiddles
 
-trait TwiddleSyntaxPlatform {
+trait TwiddleSyntaxPlatform[F[_]] {
+  implicit def toTwiddleDropUnits[A <: Tuple](fa: F[A]): TwiddleOpDropUnits[F, A] =
+    new TwiddleOpDropUnits(fa)
+}
+
+trait TwiddleSyntaxGenericPlatform {
   implicit def toTwiddleDropUnits[F[_], A <: Tuple](fa: F[A]): TwiddleOpDropUnits[F, A] =
     new TwiddleOpDropUnits(fa)
 }
