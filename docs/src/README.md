@@ -44,7 +44,7 @@ trait Json
 trait Decoder[A] {
   def decode(j: Json): Option[A]
 }
-object Decoder extends TwiddleSyntax {
+object Decoder extends TwiddleSyntax[Decoder] {
   implicit val applicative: Applicative[Decoder] = new Applicative[Decoder] {
     def pure[A](a: A): Decoder[A] = _ => Some(a)
     def ap[A, B](ff: Decoder[A => B])(fa: Decoder[A]): Decoder[B] = j =>

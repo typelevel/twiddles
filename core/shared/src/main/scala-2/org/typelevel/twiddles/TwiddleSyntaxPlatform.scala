@@ -32,7 +32,11 @@ package org.typelevel.twiddles
 
 import shapeless.HList
 
-trait TwiddleSyntaxPlatform {
+trait TwiddleSyntaxPlatform[F[_]] {
+  implicit def toTwiddleOpDropUnits[A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
+    new TwiddleOpDropUnits(fa)
+}
+trait TwiddleSyntaxGenericPlatform {
   implicit def toTwiddleOpDropUnits[F[_], A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
     new TwiddleOpDropUnits(fa)
 }
