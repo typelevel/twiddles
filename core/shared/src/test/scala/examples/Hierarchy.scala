@@ -38,17 +38,17 @@ import org.typelevel.twiddles.TwiddleSyntax
 object Hierarchy {
   trait Encoder[A]
   object Encoder extends TwiddleSyntax[Encoder] {
-    implicit val instance: ContravariantSemigroupal[Encoder] = ???
+    implicit def instance: ContravariantSemigroupal[Encoder] = ???
   }
 
   trait Decoder[A]
   object Decoder extends TwiddleSyntax[Decoder] {
-    implicit val instance: Applicative[Decoder] = ???
+    implicit def instance: Applicative[Decoder] = ???
   }
 
   trait Codec[A] extends Encoder[A] with Decoder[A]
   object Codec extends TwiddleSyntax[Codec] {
-    implicit val instance: InvariantSemigroupal[Codec] = ???
+    implicit def instance: InvariantSemigroupal[Codec] = ???
   }
 
   def int: Codec[Int] = ???
