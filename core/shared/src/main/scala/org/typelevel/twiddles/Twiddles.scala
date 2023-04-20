@@ -53,11 +53,21 @@ trait TwiddleSyntax[F[_]] extends TwiddleSyntaxPlatform[F] {
 object syntax extends TwiddleSyntaxGeneric
 
 final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
+  // Workaround for https://github.com/typelevel/twiddles/pull/2
+  def *:[A](fa: F[A])(implicit F: InvariantSemigroupal[F], ev: DummyImplicit): F[A *: B] =
+    *:[F, A](fa)(F)
+
   def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B] =
     ga.product(self).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
 }
 
 final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
+  // Workaround for https://github.com/typelevel/twiddles/pull/2
+  def *:[A](
+      fa: F[A]
+  )(implicit F: InvariantSemigroupal[F], ev: DummyImplicit): F[A *: B *: EmptyTuple] =
+    *:[F, A](fa)(F)
+
   def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
     ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
       case a *: b *: EmptyTuple => (a, b)

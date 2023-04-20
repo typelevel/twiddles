@@ -65,4 +65,5 @@ object Hierarchy {
   def f: Encoder[Foo] = (int *: (string: Encoder[String]) *: bool).as[Foo]
   def g: Encoder[Foo] = ((int: Encoder[Int]) *: string *: bool).as[Foo]
   def h = (int *: string) *: bool
+  def i = (int *: string *: bool) *: bool *: bool
 }
