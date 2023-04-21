@@ -57,7 +57,7 @@ private[twiddles] trait IsoLowPriority {
       g: Generic.Aux[B, Repr],
       du: DropUnits.Aux[A, Repr]
   ): Iso[A, B] =
-    instance((a: A) => g.from(du.removeUnits(a)))(b => du.addUnits(g.to(b)))
+    instance((a: A) => g.from(du.drop(a)))(b => du.insert(g.to(b)))
 }
 
 /** Companion for [[Iso]]. */

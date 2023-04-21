@@ -33,15 +33,6 @@ package org.typelevel.twiddles
 import cats.{Invariant, InvariantSemigroupal}
 import cats.syntax.all._
 
-trait TwiddleSyntaxGeneric extends TwiddleSyntaxGenericPlatform {
-  implicit def toTwiddleOpCons[F[_], B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
-    fb
-  )
-  implicit def toTwiddleOpTwo[F[_], B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
-
-  implicit def toTwiddleOpAs[F[_], A](fa: F[A]): TwiddleOpAs[F, A] = new TwiddleOpAs(fa)
-}
-
 trait TwiddleSyntax[F[_]] extends TwiddleSyntaxPlatform[F] {
   implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
     fb
@@ -50,7 +41,13 @@ trait TwiddleSyntax[F[_]] extends TwiddleSyntaxPlatform[F] {
   implicit def toTwiddleOpAs[A](fa: F[A]): TwiddleOpAs[F, A] = new TwiddleOpAs(fa)
 }
 
-object syntax extends TwiddleSyntaxGeneric
+object syntax extends TwiddleSyntaxGenericPlatform {
+  implicit def toTwiddleOpCons[F[_], B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
+    fb
+  )
+  implicit def toTwiddleOpTwo[F[_], B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
+  implicit def toTwiddleOpAs[F[_], A](fa: F[A]): TwiddleOpAs[F, A] = new TwiddleOpAs(fa)
+}
 
 final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
   // Workaround for https://github.com/typelevel/twiddles/pull/2

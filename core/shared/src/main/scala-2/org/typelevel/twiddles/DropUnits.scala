@@ -37,12 +37,12 @@ import shapeless._
   */
 sealed trait DropUnits[K <: HList] {
   type L <: HList
-  def removeUnits(k: K): L
-  def addUnits(l: L): K
+  def drop(k: K): L
+  def insert(l: L): K
 }
 
 /** Low priority implicits for [[DropUnits]]. */
-sealed trait DropUnitsLowPriority {
+private[twiddles] sealed trait DropUnitsLowPriority {
 
   /* Keep this low priority so that head of `K` is checked for Unit before this is used. This avoids computing
    * H =!:= Unit for each component type.
@@ -51,8 +51,8 @@ sealed trait DropUnitsLowPriority {
       implicit rest: DropUnits.Aux[KT, LT]
   ): DropUnits.Aux[H :: KT, H :: LT] = new DropUnits[H :: KT] {
     type L = H :: LT
-    def removeUnits(k: H :: KT): H :: LT = k.head :: rest.removeUnits(k.tail)
-    def addUnits(l: H :: LT): H :: KT = l.head :: rest.addUnits(l.tail)
+    def drop(k: H :: KT): H :: LT = k.head :: rest.drop(k.tail)
+    def insert(l: H :: LT): H :: KT = l.head :: rest.insert(l.tail)
   }
 }
 
@@ -63,15 +63,15 @@ object DropUnits extends DropUnitsLowPriority {
 
   implicit lazy val base: DropUnits.Aux[HNil, HNil] = new DropUnits[HNil] {
     type L = HNil
-    def removeUnits(k: HNil): HNil = HNil
-    def addUnits(l: HNil): HNil = HNil
+    def drop(k: HNil): HNil = HNil
+    def insert(l: HNil): HNil = HNil
   }
 
   implicit def `non-empty K and any L where head of K is Unit`[KT <: HList, L0 <: HList](implicit
       rest: DropUnits.Aux[KT, L0]
   ): DropUnits.Aux[Unit :: KT, L0] = new DropUnits[Unit :: KT] {
     type L = L0
-    def removeUnits(k: Unit :: KT): L = rest.removeUnits(k.tail)
-    def addUnits(l: L): Unit :: KT = () :: rest.addUnits(l)
+    def drop(k: Unit :: KT): L = rest.drop(k.tail)
+    def insert(l: L): Unit :: KT = () :: rest.insert(l)
   }
 }
