@@ -1,15 +1,18 @@
 package org.typelevel.twiddles
 
+import shapeless.{::, HList, HNil}
+
 /** Mix-in trait that provides source compatibility between Scala 2 tuples and Twiddles. */
 trait TwiddleCompat {
-  type Tuple = shapeless.HList
-  @inline val Tuple = shapeless.HList
 
-  type EmptyTuple = shapeless.HNil
-  @inline val EmptyTuple = shapeless.HNil
+  type Tuple = HList
+  @inline val Tuple = HList
 
-  type *:[A, B <: Tuple] = shapeless.::[A, B]
-  @inline val *: = shapeless.::
+  type EmptyTuple = HNil
+  @inline val EmptyTuple: EmptyTuple = HNil
+
+  type *:[A, B <: Tuple] = ::[A, B]
+  @inline val *: = ::
 
   implicit def toTupleOps[T <: Tuple](t: T): TupleOps[T] =
     new TupleOps[T](t)
@@ -38,4 +41,5 @@ trait TwiddleCompat {
   implicit def tuple21ToHList[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U](t: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)): A *: B *: C *: D *: E *: F *: G *: H *: I *: J *: K *: L *: M *: N *: O *: P *: Q *: R *: S *: T *: U *: EmptyTuple = t.productElements
   implicit def tuple22ToHList[A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V](t: (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)): A *: B *: C *: D *: E *: F *: G *: H *: I *: J *: K *: L *: M *: N *: O *: P *: Q *: R *: S *: T *: U *: V *: EmptyTuple = t.productElements
 
+  implicit def hlistToTuple[L <: Tuple, T](l: L)(implicit tupler: shapeless.ops.hlist.Tupler.Aux[L, T]): T = l.tupled
 }
