@@ -65,6 +65,7 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
   )(implicit F: InvariantSemigroupal[F], ev: DummyImplicit): F[A *: B *: EmptyTuple] =
     *:[F, A](fa)(F)
 
+  @annotation.nowarn
   def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
     ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
       case a *: b *: EmptyTuple => (a, b)
