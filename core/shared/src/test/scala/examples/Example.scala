@@ -67,4 +67,10 @@ object Example {
 
   val dropping: Decoder[Int *: String *: EmptyTuple] =
     (int *: unit *: string *: unit).dropUnits
+
+  def foo(t: Int *: String *: Boolean *: EmptyTuple): Unit = ???
+  foo((1, "hi", true))
+
+  def bar(t: (Int, String, Boolean)): Unit = ???
+  bar(1 *: "hi" *: true *: EmptyTuple)
 }

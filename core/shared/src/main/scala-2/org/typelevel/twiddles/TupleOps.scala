@@ -28,6 +28,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.typelevel
+package org.typelevel.twiddles
 
-package object twiddles extends TwiddleCompat
+final class TupleOps[T <: Tuple](private val self: T) extends AnyVal {
+  def *:[A](a: A): A *: T = new shapeless.::(a, self)
+}
