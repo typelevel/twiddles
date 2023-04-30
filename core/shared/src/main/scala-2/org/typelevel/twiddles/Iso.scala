@@ -63,12 +63,17 @@ private[twiddles] trait IsoLowPriority {
 /** Companion for [[Iso]]. */
 object Iso extends IsoLowPriority {
 
+  def apply[A, B](implicit instance: Iso[A, B]): Iso[A, B] = instance
+
   /** Identity iso. */
   implicit def id[A]: Iso[A, A] = instance[A, A](identity)(identity)
 
-  implicit def product[A <: Tuple, B](implicit gen: Generic.Aux[B, A]): Iso[A, B] =
+  def product[A](implicit gen: Generic[A]): Iso[A, gen.Repr] =
+    instance[A, gen.Repr](gen.to(_))(gen.from(_))
+
+  implicit def productInstance[A <: Tuple, B](implicit gen: Generic.Aux[B, A]): Iso[A, B] =
     instance[A, B](gen.from)(gen.to)
 
-  implicit def singleton[A, B](implicit gen: Generic.Aux[B, A *: EmptyTuple]): Iso[A, B] =
+  implicit def singletonInstance[A, B](implicit gen: Generic.Aux[B, A *: EmptyTuple]): Iso[A, B] =
     instance[A, B](a => gen.from(a *: EmptyTuple))(b => gen.to(b).head)
 }

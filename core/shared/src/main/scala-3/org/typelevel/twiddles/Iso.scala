@@ -64,15 +64,20 @@ private trait IsoLowPriority {
 /** Companion for [[Iso]]. */
 object Iso extends IsoLowPriority {
 
+  def apply[A, B](implicit instance: Iso[A, B]): Iso[A, B] = instance
+
   /** Identity iso. */
   given id[A]: Iso[A, A] = instance[A, A](identity)(identity)
 
-  given product[A <: Tuple, B <: Product](using
+  def product[A <: Product](using m: Mirror.ProductOf[A]): Iso[A, m.MirroredElemTypes] =
+    instance[A, m.MirroredElemTypes](Tuple.fromProductTyped)(m.fromProduct)
+
+  given productInstance[A <: Tuple, B <: Product](using
       m: Mirror.ProductOf[B] { type MirroredElemTypes = A }
   ): Iso[A, B] =
     instance[A, B](m.fromProduct)(Tuple.fromProductTyped)
 
-  given singleton[A, B <: Product](using
+  given singletonInstance[A, B <: Product](using
       m: Mirror.ProductOf[B] { type MirroredElemTypes = A *: EmptyTuple }
   ): Iso[A, B] =
     instance[A, B](a => m.fromProduct(a *: EmptyTuple))(b => Tuple.fromProductTyped(b).head)

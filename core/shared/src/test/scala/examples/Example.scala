@@ -73,4 +73,6 @@ object Example {
 
   def bar(t: (Int, String, Boolean)): Unit = ???
   bar(1 *: "hi" *: true *: EmptyTuple)
+
+  val bazIso = Iso.product[Baz]
 }
