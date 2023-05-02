@@ -72,5 +72,7 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
     }
 }
 final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal {
+  @deprecated("Use .to[B] instead of .as[B]", "0.6")
+  def as[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
   def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
 }
