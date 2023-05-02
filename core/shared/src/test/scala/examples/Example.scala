@@ -78,7 +78,7 @@ object Example {
 
   {
     // Make sure there's no conflict with cats syntax
-    import cats.syntax.all.*
+    import cats.syntax.all._
     val _: Decoder[Foo] = (int *: string).to[Foo]
   }
 }
