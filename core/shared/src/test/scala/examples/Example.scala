@@ -80,6 +80,6 @@ object Example {
     // Make sure there's no conflict with cats syntax
     import cats.syntax.all._
     val d: Decoder[Foo] = (int *: string).to[Foo]
-    val e: Decoder[Int] = d.as(42) // as from Functor
+    val _: Decoder[Int] = d.as(42) // as from Functor
   }
 }
