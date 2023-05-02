@@ -57,13 +57,13 @@ object Hierarchy {
 
   case class Foo(x: Int, y: String, z: Boolean)
 
-  def a: Codec[Foo] = (int *: string *: bool).as[Foo]
-  def b: Decoder[Foo] = (int *: string *: (bool: Decoder[Boolean])).as[Foo]
-  def c: Decoder[Foo] = (int *: (string: Decoder[String]) *: bool).as[Foo]
-  def d: Decoder[Foo] = ((int: Decoder[Int]) *: string *: bool).as[Foo]
-  def e: Encoder[Foo] = (int *: string *: (bool: Encoder[Boolean])).as[Foo]
-  def f: Encoder[Foo] = (int *: (string: Encoder[String]) *: bool).as[Foo]
-  def g: Encoder[Foo] = ((int: Encoder[Int]) *: string *: bool).as[Foo]
+  def a: Codec[Foo] = (int *: string *: bool).to[Foo]
+  def b: Decoder[Foo] = (int *: string *: (bool: Decoder[Boolean])).to[Foo]
+  def c: Decoder[Foo] = (int *: (string: Decoder[String]) *: bool).to[Foo]
+  def d: Decoder[Foo] = ((int: Decoder[Int]) *: string *: bool).to[Foo]
+  def e: Encoder[Foo] = (int *: string *: (bool: Encoder[Boolean])).to[Foo]
+  def f: Encoder[Foo] = (int *: (string: Encoder[String]) *: bool).to[Foo]
+  def g: Encoder[Foo] = ((int: Encoder[Int]) *: string *: bool).to[Foo]
   def h = (int *: string) *: bool
   def i = (int *: string *: bool) *: bool *: bool
 }

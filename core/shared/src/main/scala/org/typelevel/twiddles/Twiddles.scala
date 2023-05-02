@@ -38,7 +38,7 @@ trait TwiddleSyntax[F[_]] extends TwiddleSyntaxPlatform[F] {
     fb
   )
   implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
-  implicit def toTwiddleOpAs[A](fa: F[A]): TwiddleOpAs[F, A] = new TwiddleOpAs(fa)
+  implicit def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
 }
 
 object syntax extends TwiddleSyntaxGenericPlatform {
@@ -46,7 +46,7 @@ object syntax extends TwiddleSyntaxGenericPlatform {
     fb
   )
   implicit def toTwiddleOpTwo[F[_], B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
-  implicit def toTwiddleOpAs[F[_], A](fa: F[A]): TwiddleOpAs[F, A] = new TwiddleOpAs(fa)
+  implicit def toTwiddleOpTo[F[_], A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
 }
 
 final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
@@ -71,6 +71,8 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
       case a *: b *: EmptyTuple => (a, b)
     }
 }
-final class TwiddleOpAs[F[_], A](private val self: F[A]) extends AnyVal {
+final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal {
+  @deprecated("Use .to[B] instead of .as[B]", "0.6")
   def as[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
+  def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
 }

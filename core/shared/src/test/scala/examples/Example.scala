@@ -54,16 +54,16 @@ object Example {
   val string: Decoder[String] = _ => ???
 
   case class Foo(x: Int, y: String)
-  val fooDecoder: Decoder[Foo] = (int *: string).as[Foo]
+  val fooDecoder: Decoder[Foo] = (int *: string).to[Foo]
 
   case class Bar(x: Int)
-  val barDecoder: Decoder[Bar] = int.as[Bar]
+  val barDecoder: Decoder[Bar] = int.to[Bar]
 
   case class Baz(x: Foo, y: Bar)
-  val bazDecoder = (fooDecoder *: barDecoder).as[Baz]
+  val bazDecoder = (fooDecoder *: barDecoder).to[Baz]
 
   val unit: Decoder[Unit] = _ => ???
-  val fooDecoder2 = (int *: unit *: string *: unit).as[Foo]
+  val fooDecoder2 = (int *: unit *: string *: unit).to[Foo]
 
   val dropping: Decoder[Int *: String *: EmptyTuple] =
     (int *: unit *: string *: unit).dropUnits
@@ -75,4 +75,11 @@ object Example {
   bar(1 *: "hi" *: true *: EmptyTuple)
 
   val bazIso = Iso.product[Baz]
+
+  {
+    // Make sure there's no conflict with cats syntax
+    import cats.syntax.all._
+    val d: Decoder[Foo] = (int *: string).to[Foo]
+    val _: Decoder[Int] = d.as(42) // as from Functor
+  }
 }
