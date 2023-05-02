@@ -17,19 +17,19 @@ case class Foo(x: Int, y: String)
 val a = Option(42)
 val b = Option("Hi")
 
-val foo = (a *: b).as[Foo]
+val foo = (a *: b).to[Foo]
 ```
 
-In this example, `a *: b` creates an `Option[Int *: String *: EmptyTuple]`. We then convert that value to an `Option[Foo]` via `.as[Foo]`.
+In this example, `a *: b` creates an `Option[Int *: String *: EmptyTuple]`. We then convert that value to an `Option[Foo]` via `.to[Foo]`.
 
 The `*:` operation comes from the imported twiddle syntax and is similar to the Scala 3 built-in tuple cons operation, but works on applied type constructors. The expression `a *: b *: c` builds an `F[A *: B *: C *: EmptyTuple]` from an `F[A]`, `F[B]`, and `F[C]`. The `*:` operation requires that the type constructor `F` has a `cats.InvariantSemigroupal` instance.
 
-The `as` operation also comes from the imported twiddle syntax. Calling `.as[X]` on an `F[T]` for some twiddle list `T` results in an `F[X]` provided that `T` is shape compatible with `X`. In the most common case where `X` is a case class, shape compatibility is defined as `T` having the same types in the same order as the parameters of `X`. The `as` operation requires that the type constructor `F` has a `cats.Invariant` instance.
+The `to` operation also comes from the imported twiddle syntax. Calling `.to[X]` on an `F[T]` for some twiddle list `T` results in an `F[X]` provided that `T` is shape compatible with `X`. In the most common case where `X` is a case class, shape compatibility is defined as `T` having the same types in the same order as the parameters of `X`. The `to` operation requires that the type constructor `F` has a `cats.Invariant` instance.
 
 Invariant semigroupals are much more general than (covariant) functors, which means twiddle list support works for a wide variety of data types. For instance, contravariant functors are invariant semigroupals allowing us to use twiddle list syntax to incrementally build instances:
 
 ```scala mdoc
-val fooOrdering = (summon[Ordering[Int]] *: summon[Ordering[String]]).as[Foo]
+val fooOrdering = (summon[Ordering[Int]] *: summon[Ordering[String]]).to[Foo]
 ```
 
 ## Library Usage
@@ -59,10 +59,10 @@ val int: Decoder[Int] = _ => ???
 val string: Decoder[String] = _ => ???
 
 case class Foo(x: Int, y: String)
-val fooDecoder = (int *: string).as[Foo]
+val fooDecoder = (int *: string).to[Foo]
 ```
 
-In this example, the `Decoder` type has an `Applicative` instance defined in its companion object (and `Applicative` extends `InvariantSemigroupal`), and the companion object extends `TwiddleSyntax`. The latter enables use of `*:` and `as` with `Decoder` values without adding explicit imports (that is, there's no need to import `org.typelevel.twiddles.syntax._` at call sites).
+In this example, the `Decoder` type has an `Applicative` instance defined in its companion object (and `Applicative` extends `InvariantSemigroupal`), and the companion object extends `TwiddleSyntax`. The latter enables use of `*:` and `to` with `Decoder` values without adding explicit imports (that is, there's no need to import `org.typelevel.twiddles.syntax._` at call sites).
 
 ## Etymology
 
