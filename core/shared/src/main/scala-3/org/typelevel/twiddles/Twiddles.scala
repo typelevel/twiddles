@@ -35,13 +35,18 @@ import cats.syntax.all._
 
 trait TwiddleSyntax[F[_]]:
 
-  implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
-    fb
-  )
-  implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
-
   extension [A](fa: F[A])
-    // TODO: Define *: here instead of with toTwiddleOpCons/Two methods above; doing so breaks a bunch of tests though
+    @annotation.targetName("cons")
+    def *:[B <: Tuple](fb: F[B])(using InvariantSemigroupal[F]): F[A *: B] =
+      fa.product(fb).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+
+    @annotation.targetName("pair")
+    @annotation.nowarn
+    def *:[B](fb: F[B])(using InvariantSemigroupal[F]): F[A *: B *: EmptyTuple] =
+      fa.product(fb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
+        case a *: b *: EmptyTuple => (a, b)
+      }
+
     def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] = fa.imap(iso.to)(iso.from)
 
   extension [A <: Tuple](fa: F[A])
@@ -51,13 +56,13 @@ trait TwiddleSyntax[F[_]]:
 object syntax:
   extension [F[_], A](fa: F[A])
     @annotation.targetName("cons")
-    def *:[G[x] >: F[x], B <: Tuple](gb: G[B])(using InvariantSemigroupal[G]): G[A *: B] =
-      fa.product(gb).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+    def *:[B <: Tuple](fb: F[B])(using InvariantSemigroupal[F]): F[A *: B] =
+      fa.product(fb).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
 
     @annotation.targetName("pair")
     @annotation.nowarn
-    def *:[G[x] >: F[x], B](gb: G[B])(using InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
-      fa.product(gb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
+    def *:[B](fb: F[B])(using InvariantSemigroupal[F]): F[A *: B *: EmptyTuple] =
+      fa.product(fb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
         case a *: b *: EmptyTuple => (a, b)
       }
 
