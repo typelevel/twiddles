@@ -82,4 +82,9 @@ object Example {
     val d: Decoder[Foo] = (int *: string).to[Foo]
     val _: Decoder[Int] = d.as(42) // as from Functor
   }
+
+  {
+    import org.typelevel.twiddles.syntax._
+    val _ = Option(1) *: Option(2)
+  }
 }

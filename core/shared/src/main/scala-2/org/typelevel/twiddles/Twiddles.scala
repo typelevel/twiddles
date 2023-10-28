@@ -30,13 +30,42 @@
 
 package org.typelevel.twiddles
 
+import cats.{Invariant, InvariantSemigroupal}
+import cats.syntax.all._
 import shapeless.HList
 
-private[twiddles] trait TwiddleSyntaxPlatform[F[_]] {
+trait TwiddleSyntax[F[_]] {
+  implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
+    fb
+  )
+  implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
+  implicit def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
   implicit def toTwiddleOpDropUnits[A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
     new TwiddleOpDropUnits(fa)
 }
-private[twiddles] trait TwiddleSyntaxGenericPlatform {
+
+object syntax {
+  implicit def toTwiddleOpCons[F[_], B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
+    fb
+  )
+  implicit def toTwiddleOpTwo[F[_], B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
+  implicit def toTwiddleOpTo[F[_], A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
   implicit def toTwiddleOpDropUnits[F[_], A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
     new TwiddleOpDropUnits(fa)
+}
+
+final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
+  def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B] =
+    ga.product(self).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+}
+
+final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
+  @annotation.nowarn
+  def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
+    ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
+      case a *: b *: EmptyTuple => (a, b)
+    }
+}
+final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal {
+  def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
 }
