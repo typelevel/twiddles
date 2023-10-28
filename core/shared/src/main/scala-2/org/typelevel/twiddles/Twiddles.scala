@@ -32,21 +32,26 @@ package org.typelevel.twiddles
 
 import cats.{Invariant, InvariantSemigroupal}
 import cats.syntax.all._
+import shapeless.HList
 
-trait TwiddleSyntax[F[_]] extends TwiddleSyntaxPlatform[F] {
+trait TwiddleSyntax[F[_]] {
   implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
     fb
   )
   implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
   implicit def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
+  implicit def toTwiddleOpDropUnits[A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
+    new TwiddleOpDropUnits(fa)
 }
 
-object syntax extends TwiddleSyntaxGenericPlatform {
+object syntax {
   implicit def toTwiddleOpCons[F[_], B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
     fb
   )
   implicit def toTwiddleOpTwo[F[_], B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
   implicit def toTwiddleOpTo[F[_], A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
+  implicit def toTwiddleOpDropUnits[F[_], A <: HList](fa: F[A]): TwiddleOpDropUnits[F, A] =
+    new TwiddleOpDropUnits(fa)
 }
 
 final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
