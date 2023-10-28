@@ -72,24 +72,3 @@ object syntax:
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
       fa.imap(DropUnits.drop(_))(DropUnits.insert(_))
 
-final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal:
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  @annotation.targetName("consFixedF")
-  def *:[A](fa: F[A])(using F: InvariantSemigroupal[F]): F[A *: B] =
-    *:[F, A](fa)(using F)
-
-  def *:[G[x] >: F[x], A](ga: G[A])(using InvariantSemigroupal[G]): G[A *: B] =
-    ga.product(self).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
-
-final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal:
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  @annotation.targetName("twoFixedF")
-  def *:[A](
-      fa: F[A]
-  )(using F: InvariantSemigroupal[F]): F[A *: B *: EmptyTuple] =
-    *:[F, A](fa)(using F)
-
-  def *:[G[x] >: F[x], A](ga: G[A])(using InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
-    ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
-      case a *: b *: EmptyTuple => (a, b)
-    }
