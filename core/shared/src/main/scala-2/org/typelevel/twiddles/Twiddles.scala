@@ -50,21 +50,11 @@ object syntax extends TwiddleSyntaxGenericPlatform {
 }
 
 final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal {
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  def *:[A](fa: F[A])(implicit F: InvariantSemigroupal[F], ev: DummyImplicit): F[A *: B] =
-    *:[F, A](fa)(F)
-
   def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B] =
     ga.product(self).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
 }
 
 final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  def *:[A](
-      fa: F[A]
-  )(implicit F: InvariantSemigroupal[F], ev: DummyImplicit): F[A *: B *: EmptyTuple] =
-    *:[F, A](fa)(F)
-
   @annotation.nowarn
   def *:[G[x] >: F[x], A](ga: G[A])(implicit G: InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
     ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
@@ -72,7 +62,5 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal {
     }
 }
 final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal {
-  @deprecated("Use .to[B] instead of .as[B]", "0.6")
-  def as[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
   def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
 }
