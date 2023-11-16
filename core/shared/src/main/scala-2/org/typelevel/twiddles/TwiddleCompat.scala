@@ -31,6 +31,7 @@
 package org.typelevel.twiddles
 
 import shapeless.{::, HList, HNil}
+import shapeless.ops.hlist.Tupler
 
 /** Mix-in trait that provides source compatibility between Scala 2 tuples and Twiddles. */
 trait TwiddleCompat {
@@ -115,7 +116,75 @@ trait TwiddleCompat {
   ): A *: B *: C *: D *: E *: F *: G *: H *: I *: J *: K *: L *: M *: N *: O *: P *: Q *: R *: S *:
     T *: U *: V *: EmptyTuple = t.productElements
 
-  implicit def hlistToTuple[L <: Tuple, T](l: L)(implicit
-      tupler: shapeless.ops.hlist.Tupler.Aux[L, T]
-  ): T = l.tupled
+  // format: off
+  implicit def hlistToTuple0[Z <: Tuple](z: Z)(implicit
+      tupler: shapeless.ops.hlist.Tupler.Aux[Z, Unit]
+  ): Unit = tupler(z)
+  implicit def hlistToTuple1[Z <: Tuple, A](z: Z)(implicit
+      tupler: shapeless.ops.hlist.Tupler.Aux[Z, Tuple1[A]]
+  ): Tuple1[A] = tupler(z)
+  implicit def hlistToTuple2[Z <: Tuple, A, B](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B)]
+  ): (A, B) = tupler(z)
+  implicit def hlistToTuple3[Z <: Tuple, A, B, C](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C)]
+  ): (A, B, C) = tupler(z)
+  implicit def hlistToTuple4[Z <: Tuple, A, B, C, D](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D)]
+  ): (A, B, C, D) = tupler(z)
+  implicit def hlistToTuple5[Z <: Tuple, A, B, C, D, E](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E)]
+  ): (A, B, C, D, E) = tupler(z)
+  implicit def hlistToTuple6[Z <: Tuple, A, B, C, D, E, F](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F)]
+  ): (A, B, C, D, E, F) = tupler(z)
+  implicit def hlistToTuple7[Z <: Tuple, A, B, C, D, E, F, G](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G)]
+  ): (A, B, C, D, E, F, G) = tupler(z)
+  implicit def hlistToTuple8[Z <: Tuple, A, B, C, D, E, F, G, H](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H)]
+  ): (A, B, C, D, E, F, G, H) = tupler(z)
+  implicit def hlistToTuple9[Z <: Tuple, A, B, C, D, E, F, G, H, I](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I)]
+  ): (A, B, C, D, E, F, G, H, I) = tupler(z)
+  implicit def hlistToTuple10[Z <: Tuple, A, B, C, D, E, F, G, H, I, J](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J)]
+  ): (A, B, C, D, E, F, G, H, I, J) = tupler(z)
+  implicit def hlistToTuple11[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K)]
+  ): (A, B, C, D, E, F, G, H, I, J, K) = tupler(z)
+  implicit def hlistToTuple12[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L) = tupler(z)
+  implicit def hlistToTuple13[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M) = tupler(z)
+  implicit def hlistToTuple14[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N) = tupler(z)
+  implicit def hlistToTuple15[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O) = tupler(z)
+  implicit def hlistToTuple16[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P) = tupler(z)
+  implicit def hlistToTuple17[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q) = tupler(z)
+  implicit def hlistToTuple18[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R) = tupler(z)
+  implicit def hlistToTuple19[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S) = tupler(z)
+  implicit def hlistToTuple20[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T) = tupler(z)
+  implicit def hlistToTuple21[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U) = tupler(z)
+  implicit def hlistToTuple22[Z <: Tuple, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V](z: Z)(implicit
+      tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)]
+  ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) = tupler(z)
+  // format: on
 }
