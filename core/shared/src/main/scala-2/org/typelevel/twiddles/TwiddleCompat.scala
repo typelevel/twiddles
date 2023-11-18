@@ -187,4 +187,9 @@ trait TwiddleCompat {
       tupler: Tupler.Aux[Z, (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V)]
   ): (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V) = tupler(z)
   // format: on
+
+  // Unused but kept for binary compatibility
+  def hlistToTuple[L <: Tuple, T](l: L)(implicit
+      tupler: shapeless.ops.hlist.Tupler.Aux[L, T]
+  ): T = l.tupled
 }
