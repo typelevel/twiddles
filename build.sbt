@@ -45,6 +45,15 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   )
 
 lazy val coreJVM = core.jvm
+  .settings(
+    libraryDependencies ++=
+      (if (scalaVersion.value.startsWith("2."))
+         Seq(
+           "org.scala-lang" % "scala-reflect" % scalaVersion.value % Test,
+           "org.scala-lang" % "scala-compiler" % scalaVersion.value % Test
+         )
+       else Nil)
+  )
 
 lazy val coreJS = core.js
   .disablePlugins(DoctestPlugin)
