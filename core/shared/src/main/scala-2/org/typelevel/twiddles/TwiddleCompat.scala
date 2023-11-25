@@ -42,7 +42,7 @@ trait TwiddleCompat {
   type EmptyTuple = HNil
   @inline val EmptyTuple: EmptyTuple = HNil
 
-  type *:[A, B <: Tuple] = ::[A, B]
+  type *:[+A, +B <: Tuple] = ::[A, B]
   @inline val *: = ::
 
   implicit def toTupleOps[T <: Tuple](t: T): TupleOps[T] =
