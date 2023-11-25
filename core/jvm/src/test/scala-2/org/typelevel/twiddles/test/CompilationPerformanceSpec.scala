@@ -61,6 +61,36 @@ class CompilationPerformanceSpec extends FunSuite {
     assert(compiled.isInstanceOf[Tuple])
   }
 
+  test("should subtype in a reasonable amount of time") {
+    val compiled = compileWithin(
+      q"""import org.typelevel.twiddles._
+          val inferred =
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+            1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *: 1 *:
+              EmptyTuple
+          type Expected = 
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+            Int *: Int *: Int *: Int *: Int *: Int *: Int *: Int *:
+              EmptyTuple
+          inferred: Expected""",
+      10.seconds
+    )
+
+    assert(compiled.isInstanceOf[Tuple])
+  }
+
   private val toolbox = {
     val toolbox = currentMirror.mkToolBox()
     // warmup
