@@ -11,7 +11,7 @@ This library provides the ability to work with twiddle lists for arbitrary types
 Artifacts are published for Scala 2.12, 2.13, and 3 and all platforms (JVM, Scala.js, and Scala Native).
 
 ```scala
-libraryDependencies += "org.typelevel" %%% "twiddles-core" % "0.6.0" // check Releases for the latest version
+libraryDependencies += "org.typelevel" %%% "twiddles-core" % "0.7.2" // check Releases for the latest version
 ```
 
 ```scala mdoc
