@@ -40,9 +40,11 @@ trait TwiddleSyntax[F[_]]:
   )
   implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
 
-  extension [A](fa: F[A])
-    // TODO: Define *: here instead of with toTwiddleOpCons/Two methods above; doing so breaks a bunch of tests though
-    def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] = fa.imap(iso.to)(iso.from)
+  // extension [A](fa: F[A])
+  //   // TODO: Define *: here instead of with toTwiddleOpCons/Two methods above; doing so breaks a bunch of tests though
+  //   def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] = fa.imap(iso.to)(iso.from)
+
+  implicit def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
 
   extension [A <: Tuple](fa: F[A])
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
@@ -88,3 +90,7 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal:
     ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
       case a *: b *: EmptyTuple => (a, b)
     }
+
+final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal {
+  def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
+}
