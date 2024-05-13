@@ -2,7 +2,7 @@ import com.typesafe.tools.mima.core._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / tlBaseVersion := "0.9"
 
 ThisBuild / organization := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
@@ -66,6 +66,9 @@ lazy val coreJS = core.js
 lazy val coreNative = core.native
   .enablePlugins(ScalaNativeBrewedConfigPlugin)
   .disablePlugins(DoctestPlugin)
+  .settings(
+    tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.9.0").toMap
+  )
 
 lazy val docs = project
   .in(file("docs"))
