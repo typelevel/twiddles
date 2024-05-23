@@ -37,9 +37,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "twiddles-core",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.11.0",
-      "org.typelevel" %%% "munit-cats-effect" % "2.0.0-RC1" % Test,
-      "org.typelevel" %%% "scalacheck-effect-munit" % "2.0.0-M2" % Test
-    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.4.0-M1")
+      "org.typelevel" %%% "munit-cats-effect" % "2.0.0" % Test,
+      "org.typelevel" %%% "scalacheck-effect-munit" % "2.0.0" % Test
+    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.11")
           else Nil),
     scalacOptions := scalacOptions.value.filterNot(_.startsWith("-source:"))
   )
