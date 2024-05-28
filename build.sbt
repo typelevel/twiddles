@@ -2,7 +2,7 @@ import com.typesafe.tools.mima.core._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / tlBaseVersion := "0.9"
 
 ThisBuild / organization := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
@@ -36,10 +36,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(
     name := "twiddles-core",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.11.0",
-      "org.typelevel" %%% "munit-cats-effect" % "2.0.0" % Test,
-      "org.typelevel" %%% "scalacheck-effect-munit" % "2.0.0-M2" % Test
-    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.11")
+      "org.typelevel" %%% "cats-core" % "2.12.0",
+      "org.scalameta" %%% "munit" % "1.0.0"
+    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.12")
           else Nil),
     scalacOptions := scalacOptions.value.filterNot(_.startsWith("-source:"))
   )
@@ -66,6 +65,9 @@ lazy val coreJS = core.js
 lazy val coreNative = core.native
   .enablePlugins(ScalaNativeBrewedConfigPlugin)
   .disablePlugins(DoctestPlugin)
+  .settings(
+    tlVersionIntroduced := List("2.12", "2.13", "3").map(_ -> "0.9.0").toMap
+  )
 
 lazy val docs = project
   .in(file("docs"))
