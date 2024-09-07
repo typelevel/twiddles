@@ -8,7 +8,7 @@ ThisBuild / organization := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear := Some(2023)
 
-ThisBuild / crossScalaVersions := Seq("3.3.3", "2.12.19", "2.13.14")
+ThisBuild / crossScalaVersions := Seq("3.3.3", "2.12.20", "2.13.14")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 
 ThisBuild / doctestTestFramework := DoctestTestFramework.ScalaCheck
@@ -37,7 +37,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "twiddles-core",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.12.0",
-      "org.scalameta" %%% "munit" % "1.0.0"
+      "org.scalameta" %%% "munit" % "1.0.1"
     ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.12")
           else Nil),
     scalacOptions := scalacOptions.value.filterNot(_.startsWith("-source:"))
