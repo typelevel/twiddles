@@ -38,7 +38,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.12.0",
       "org.scalameta" %%% "munit" % "1.0.1"
-    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.12")
+    ) ++ (if (scalaVersion.value.startsWith("2.")) Seq("com.chuusai" %%% "shapeless" % "2.3.13")
           else Nil),
     scalacOptions := scalacOptions.value.filterNot(_.startsWith("-source:"))
   )
