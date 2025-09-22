@@ -50,7 +50,7 @@ object DropUnits:
     //   case EmptyTuple => EmptyTuple
     (inline erasedValue[A] match
       case _: (Unit *: tl) => drop[tl](a.asInstanceOf[Unit *: tl].tail)
-      case _: (hd *: tl) =>
+      case _: (hd *: tl)   =>
         val at = a.asInstanceOf[hd *: tl]
         at.head *: drop[tl](at.tail)
       case EmptyTuple => EmptyTuple
@@ -59,7 +59,7 @@ object DropUnits:
   inline def insert[A <: Tuple](t: DropUnits[A]): A =
     (inline erasedValue[A] match
       case _: (Unit *: tl) => (()) *: (insert[tl](t.asInstanceOf[DropUnits[tl]]))
-      case _: (hd *: tl) =>
+      case _: (hd *: tl)   =>
         val t2 = t.asInstanceOf[NonEmptyTuple]
         t2.head.asInstanceOf[hd] *: insert[tl](t2.tail.asInstanceOf[DropUnits[tl]])
       case EmptyTuple => EmptyTuple
