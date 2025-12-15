@@ -32,15 +32,27 @@ package org.typelevel.twiddles
 
 import cats.{Invariant, InvariantSemigroupal}
 import cats.syntax.all._
+import scala.compiletime.summonInline
 
 trait TwiddleSyntax[F[_]]:
 
   implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
     fb
   )
+
   implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
 
-  implicit def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
+  extension [A](fa: F[A])
+    inline def to[B]: F[B] =
+      // Note: defining these as context params results in inference issues
+      // See https://github.com/typelevel/twiddles/issues/19 and fix
+      // https://github.com/typelevel/twiddles/issues/10#issuecomment-2833403842
+      val iso = summonInline[Iso[A, B]]
+      val F = summonInline[Invariant[F]]
+      F.imap(fa)(iso.to)(iso.from)
+
+  @deprecated("1.0", "No lnoger needed")
+  def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
 
   extension [A <: Tuple](fa: F[A])
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
@@ -87,5 +99,6 @@ final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal:
       case a *: b *: EmptyTuple => (a, b)
     }
 
+@deprecated("1.0", "No longer needed")
 final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal:
   def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
