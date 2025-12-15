@@ -51,7 +51,7 @@ trait TwiddleSyntax[F[_]]:
       val F = summonInline[Invariant[F]]
       F.imap(fa)(iso.to)(iso.from)
 
-  @deprecated("1.0", "No lnoger needed")
+  @deprecated("1.0", "No longer needed")
   def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
 
   extension [A <: Tuple](fa: F[A])
