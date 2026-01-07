@@ -38,18 +38,24 @@ object Twiddles:
 
   type Prepend[A, B] = B match
     case Tuple => A *: B
-    case _ => A *: B *: EmptyTuple
+    case _     => A *: B *: EmptyTuple
 
-  inline def prepend[F[x]: InvariantSemigroupal, G[x] <: F[x], A, B](fa: F[A], gb: G[B]): F[Prepend[A, B]] =
+  inline def prepend[F[x]: InvariantSemigroupal, G[x] <: F[x], A, B](
+      fa: F[A],
+      gb: G[B]
+  ): F[Prepend[A, B]] =
     inline gb match
       case gbT: G[bh *: bt] =>
         val gbT0: G[bh *: bt] = gbT // Huh?
-        val res = fa.product(gbT0).imap[A *: bh *: bt] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+        val res = fa.product(gbT0).imap[A *: bh *: bt] { case (hd, tl) => hd *: tl } {
+          case hd *: tl => (hd, tl)
+        }
         res.asInstanceOf[F[Prepend[A, B]]]
       case _ =>
-        val res = fa.product(gb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
-          case a *: b *: EmptyTuple => (a, b)
-        }
+        val res =
+          fa.product(gb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
+            case a *: b *: EmptyTuple => (a, b)
+          }
         res.asInstanceOf[F[Prepend[A, B]]]
 
   sealed trait PrependOps[F[_]]:
@@ -61,13 +67,12 @@ object Twiddles:
       inline def *:[B](that: F[B]): G[Prepend[A, B]] =
         prepend(self, that)
 
-
 trait TwiddleSyntax[F[_]]:
 
   given twiddlesPrependOps: Twiddles.PrependOps[F] with {}
 
   extension [A](fa: F[A])
-  
+
     inline def to[B]: F[B] =
       // Note: defining these as context params results in inference issues
       // See https://github.com/typelevel/twiddles/issues/19 and fix
@@ -80,10 +85,11 @@ trait TwiddleSyntax[F[_]]:
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
       fa.imap(DropUnits.drop(_))(DropUnits.insert(_))
 
-
 object syntax:
   extension [F[_], A](fa: F[A])
-    inline def *:[G[x] >: F[x], B](gb: G[B])(using InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
+    inline def *:[G[x] >: F[x], B](gb: G[B])(using
+        InvariantSemigroupal[G]
+    ): G[A *: B *: EmptyTuple] =
       Twiddles.prepend(fa, gb).asInstanceOf[G[A *: B *: EmptyTuple]]
 
     inline def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] =
@@ -92,4 +98,3 @@ object syntax:
   extension [F[_], A <: Tuple](fa: F[A])
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
       fa.imap(DropUnits.drop(_))(DropUnits.insert(_))
-
