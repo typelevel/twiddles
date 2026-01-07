@@ -31,18 +31,45 @@
 package org.typelevel.twiddles
 
 import cats.{Invariant, InvariantSemigroupal}
-import cats.syntax.all._
+import cats.syntax.all.*
 import scala.compiletime.summonInline
+
+object Twiddles:
+
+  type Prepend[A, B] = B match
+    case Tuple => A *: B
+    case _     => A *: B *: EmptyTuple
+
+  inline def prepend[F[x]: InvariantSemigroupal, G[x] <: F[x], A, B](
+      fa: F[A],
+      gb: G[B]
+  ): F[Prepend[A, B]] =
+    inline gb match
+      case gbT: G[bh *: bt] =>
+        val gbT0: G[bh *: bt] = gbT // Huh?
+        val res = fa.product(gbT0).imap[A *: bh *: bt] { case (hd, tl) => hd *: tl } {
+          case hd *: tl => (hd, tl)
+        }
+        res.asInstanceOf[F[Prepend[A, B]]]
+      case _ =>
+        val res = fa.product(gb)
+        res.asInstanceOf[F[Prepend[A, B]]]
+
+  sealed trait PrependOps[F[_]]:
+    extension [A](self: F[A])(using InvariantSemigroupal[F])
+      inline def *:[B](that: F[B]): F[Prepend[A, B]] =
+        prepend(self, that)
+
+    extension [A, G[x] >: F[x]: InvariantSemigroupal](self: G[A])
+      inline def *:[B](that: F[B]): G[Prepend[A, B]] =
+        prepend(self, that)
 
 trait TwiddleSyntax[F[_]]:
 
-  implicit def toTwiddleOpCons[B <: Tuple](fb: F[B]): TwiddleOpCons[F, B] = new TwiddleOpCons(
-    fb
-  )
-
-  implicit def toTwiddleOpTwo[B](fb: F[B]): TwiddleOpTwo[F, B] = new TwiddleOpTwo(fb)
+  given twiddlesPrependOps: Twiddles.PrependOps[F] with {}
 
   extension [A](fa: F[A])
+
     inline def to[B]: F[B] =
       // Note: defining these as context params results in inference issues
       // See https://github.com/typelevel/twiddles/issues/19 and fix
@@ -51,54 +78,20 @@ trait TwiddleSyntax[F[_]]:
       val F = summonInline[Invariant[F]]
       F.imap(fa)(iso.to)(iso.from)
 
-  @deprecated("1.0", "No longer needed")
-  def toTwiddleOpTo[A](fa: F[A]): TwiddleOpTo[F, A] = new TwiddleOpTo(fa)
-
   extension [A <: Tuple](fa: F[A])
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
       fa.imap(DropUnits.drop(_))(DropUnits.insert(_))
 
 object syntax:
   extension [F[_], A](fa: F[A])
-    @annotation.targetName("cons")
-    def *:[G[x] >: F[x], B <: Tuple](gb: G[B])(using InvariantSemigroupal[G]): G[A *: B] =
-      fa.product(gb).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+    inline def *:[G[x] >: F[x], B](gb: G[B])(using
+        InvariantSemigroupal[G]
+    ): G[A *: B *: EmptyTuple] =
+      Twiddles.prepend(fa, gb).asInstanceOf[G[A *: B *: EmptyTuple]]
 
-    @annotation.targetName("pair")
-    @annotation.nowarn
-    def *:[G[x] >: F[x], B](gb: G[B])(using InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
-      fa.product(gb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
-        case a *: b *: EmptyTuple => (a, b)
-      }
-
-    def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] = fa.imap(iso.to)(iso.from)
+    inline def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] =
+      fa.imap(iso.to)(iso.from)
 
   extension [F[_], A <: Tuple](fa: F[A])
     inline def dropUnits(using Invariant[F]): F[DropUnits[A]] =
       fa.imap(DropUnits.drop(_))(DropUnits.insert(_))
-
-final class TwiddleOpCons[F[_], B <: Tuple](private val self: F[B]) extends AnyVal:
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  @annotation.targetName("consFixedF")
-  def *:[A](fa: F[A])(using F: InvariantSemigroupal[F]): F[A *: B] =
-    *:[F, A](fa)(using F)
-
-  def *:[G[x] >: F[x], A](ga: G[A])(using InvariantSemigroupal[G]): G[A *: B] =
-    ga.product(self).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
-
-final class TwiddleOpTwo[F[_], B](private val self: F[B]) extends AnyVal:
-  // Workaround for https://github.com/typelevel/twiddles/pull/2
-  @annotation.targetName("twoFixedF")
-  def *:[A](
-      fa: F[A]
-  )(using F: InvariantSemigroupal[F]): F[A *: B *: EmptyTuple] =
-    *:[F, A](fa)(using F)
-
-  def *:[G[x] >: F[x], A](ga: G[A])(using InvariantSemigroupal[G]): G[A *: B *: EmptyTuple] =
-    ga.product(self).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
-      case a *: b *: EmptyTuple => (a, b)
-    }
-
-@deprecated("1.0", "No longer needed")
-final class TwiddleOpTo[F[_], A](private val self: F[A]) extends AnyVal:
-  def to[B](implicit iso: Iso[A, B], F: Invariant[F]): F[B] = self.imap(iso.to)(iso.from)
