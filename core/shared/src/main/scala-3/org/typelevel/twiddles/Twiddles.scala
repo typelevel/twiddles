@@ -52,10 +52,7 @@ object Twiddles:
         }
         res.asInstanceOf[F[Prepend[A, B]]]
       case _ =>
-        val res =
-          fa.product(gb).imap[A *: B *: EmptyTuple] { case (a, b) => a *: b *: EmptyTuple } {
-            case a *: b *: EmptyTuple => (a, b)
-          }
+        val res = fa.product(gb)
         res.asInstanceOf[F[Prepend[A, B]]]
 
   sealed trait PrependOps[F[_]]:
