@@ -8,7 +8,7 @@ ThisBuild / organization := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / startYear := Some(2023)
 
-ThisBuild / crossScalaVersions := Seq("3.3.7", "2.12.21", "2.13.18")
+ThisBuild / crossScalaVersions := Seq("3.3.7", "2.12.21", "3.8.1")
 ThisBuild / scalaVersion := (ThisBuild / crossScalaVersions).value.head
 
 ThisBuild / doctestTestFramework := DoctestTestFramework.ScalaCheck
