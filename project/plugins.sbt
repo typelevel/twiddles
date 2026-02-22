@@ -1,4 +1,4 @@
-val sbtTypelevelVersion = "0.8.4"
+val sbtTypelevelVersion = "0.8.5"
 addSbtPlugin("org.typelevel" % "sbt-typelevel" % sbtTypelevelVersion)
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.2")
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.10")
