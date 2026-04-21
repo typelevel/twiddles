@@ -2,7 +2,7 @@ import com.typesafe.tools.mima.core._
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-ThisBuild / tlBaseVersion := "1.0"
+ThisBuild / tlBaseVersion := "1.1"
 
 ThisBuild / organization := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
@@ -24,6 +24,12 @@ ThisBuild / licenses := List(
 )
 
 ThisBuild / mimaBinaryIssueFilters ++= Seq(
+  ProblemFilters.exclude[DirectMissingMethodProblem](
+    "org.typelevel.twiddles.TwiddleSyntax.twiddlesPrependOps"
+  ),
+  ProblemFilters.exclude[MissingClassProblem](
+    "org.typelevel.twiddles.TwiddleSyntax$twiddlesPrependOps$"
+  )
 )
 
 lazy val root = tlCrossRootProject
