@@ -23,9 +23,6 @@ ThisBuild / licenses := List(
   ("BSD-3-Clause", url("https://github.com/typelevel/twiddles/blob/main/LICENSE"))
 )
 
-// Not sure why this seems to be necessary?
-ThisBuild / tlMimaPreviousVersions += "1.0.0"
-
 ThisBuild / mimaBinaryIssueFilters ++= Seq(
   ProblemFilters.exclude[DirectMissingMethodProblem](
     "org.typelevel.twiddles.TwiddleSyntax.twiddlesPrependOps"
