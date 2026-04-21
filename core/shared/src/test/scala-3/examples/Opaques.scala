@@ -51,4 +51,3 @@ object Opaques:
   case class Bar(x: Int, y: Scope.OpaqueInt, z: Scope.OpaqueInt)
 
   val b: Codec[Bar] = (int *: Scope.oint *: Scope.oint).to[Bar]
-
