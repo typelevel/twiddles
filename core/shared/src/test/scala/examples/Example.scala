@@ -87,4 +87,10 @@ object Example {
     import org.typelevel.twiddles.syntax._
     val _ = Option(1) *: Option(2)
   }
+
+  {
+    import org.typelevel.twiddles.syntax._
+    val _: Option[Int *: String *: Boolean *: EmptyTuple] =
+      Option(1) *: Option("hi") *: Option(true)
+  }
 }
