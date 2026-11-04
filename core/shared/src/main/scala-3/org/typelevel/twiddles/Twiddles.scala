@@ -92,18 +92,16 @@ trait TwiddleSyntax[F[_]]:
 
 object syntax:
   extension [F[_], A](fa: F[A])
+    @annotation.targetName("cons")
+    inline def *:[G[x] >: F[x], B <: Tuple](gb: G[B])(using
+        InvariantSemigroupal[G]
+    ): G[A *: B] =
+      fa.product(gb).imap[A *: B] { case (hd, tl) => hd *: tl } { case hd *: tl => (hd, tl) }
+
     inline def *:[G[x] >: F[x], B](gb: G[B])(using
         InvariantSemigroupal[G]
     ): G[A *: B *: EmptyTuple] =
-      inline gb match
-        case gbT: G[bh *: bt] =>
-          val gbT0: G[bh *: bt] = gbT
-          val res = fa.product(gbT0).imap[A *: bh *: bt] { case (hd, tl) => hd *: tl } {
-            case hd *: tl => (hd, tl)
-          }
-          res.asInstanceOf[G[A *: B *: EmptyTuple]]
-        case _ =>
-          fa.product(gb).asInstanceOf[G[A *: B *: EmptyTuple]]
+      fa.product(gb)
 
     inline def to[B](using iso: Iso[A, B], F: Invariant[F]): F[B] =
       fa.imap(iso.to)(iso.from)
